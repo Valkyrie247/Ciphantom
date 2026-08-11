@@ -1,0 +1,602 @@
+/* =========================================
+   GOOGLE FONTS
+========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+
+/* =========================================
+   RESET
+========================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body,
+#root{
+    width:100%;
+    min-height:100%;
+}
+
+body{
+
+    background:#090B10;
+
+    color:#F5F5F5;
+
+    font-family:"Space Grotesk",sans-serif;
+
+    overflow-x:hidden;
+}
+
+
+/* =========================================
+   BACKGROUND
+========================================= */
+
+.app{
+
+    min-height:100vh;
+
+    position:relative;
+
+    padding:45px 70px;
+
+    overflow:hidden;
+}
+
+
+/* Grid */
+
+.background{
+
+    position:fixed;
+
+    inset:0;
+
+    background-image:
+
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+
+    background-size:42px 42px;
+
+    z-index:-2;
+}
+
+
+/* Lighting */
+
+.background::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:900px;
+
+    height:900px;
+
+    border-radius:50%;
+
+    top:-420px;
+
+    left:-250px;
+
+    background:
+
+    radial-gradient(circle,
+    rgba(65,90,255,.12),
+    transparent 70%);
+}
+
+.background::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:700px;
+
+    height:700px;
+
+    border-radius:50%;
+
+    bottom:-350px;
+
+    right:-250px;
+
+    background:
+
+    radial-gradient(circle,
+    rgba(255,60,60,.08),
+    transparent 70%);
+}
+
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:70px;
+}
+
+.brand h2{
+
+    color:#F9FAFB;
+
+    font-size:1.05rem;
+
+    letter-spacing:5px;
+
+    font-weight:700;
+}
+
+.brand p{
+
+    margin-top:4px;
+
+    color:#70788A;
+
+    font-size:.82rem;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+
+    font-family:"JetBrains Mono",monospace;
+}
+
+
+.navInfo{
+
+    display:flex;
+
+    align-items:center;
+}
+
+.session{
+
+    color:#36F38D;
+
+    font-family:"JetBrains Mono";
+
+    font-size:.85rem;
+
+    letter-spacing:2px;
+}
+
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero{
+
+    width:900px;
+
+    margin-bottom:80px;
+}
+
+
+.heroTag{
+
+    color:#36F38D;
+
+    font-family:"JetBrains Mono";
+
+    letter-spacing:2px;
+
+    font-size:.85rem;
+
+    margin-bottom:18px;
+}
+
+
+/* Welcome */
+
+.hero h1{
+
+    font-size:5.3rem;
+
+    font-weight:700;
+
+    line-height:1;
+
+    margin-bottom:12px;
+
+    color:white;
+}
+
+
+/* Stalker */
+
+.danger{
+
+    color:#FF4A57;
+
+    text-shadow:
+
+    0 0 18px rgba(255,74,87,.25);
+}
+
+
+/* I'm Ciphantom */
+
+.hero h2{
+
+    font-size:3.3rem;
+
+    margin-bottom:28px;
+
+    color:white;
+
+    font-weight:600;
+}
+
+.green{
+
+    color:#36F38D;
+}
+
+
+/* Blinking Cursor */
+
+.cursor{
+
+    animation:blink 1s infinite;
+}
+
+
+/* Description */
+
+.description{
+
+    width:700px;
+
+    color:#8B93A5;
+
+    line-height:1.9;
+
+    font-size:1.08rem;
+}
+
+
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes blink{
+
+    50%{
+
+        opacity:0;
+
+    }
+
+}
+/* =========================================
+   MAIN DASHBOARD
+========================================= */
+
+.dashboard{
+
+    display:grid;
+
+    grid-template-columns:1.1fr .9fr;
+
+    gap:32px;
+
+    align-items:start;
+}
+
+
+
+/* =========================================
+   PANELS
+========================================= */
+
+.panel{
+
+    background:rgba(17,21,28,.72);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter:blur(22px);
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:
+
+    0 25px 70px rgba(0,0,0,.35);
+
+    transition:.3s;
+
+    min-height:580px;
+}
+
+.panel:hover{
+
+    transform:translateY(-4px);
+
+    border-color:rgba(255,255,255,.12);
+
+    box-shadow:
+
+    0 30px 90px rgba(0,0,0,.45);
+}
+
+
+
+/* =========================================
+   PANEL HEADER
+========================================= */
+
+.panelHeader{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:35px;
+}
+
+.panelHeader h3{
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    letter-spacing:3px;
+
+    color:white;
+}
+
+.panelHeader span{
+
+    color:#777F91;
+
+    font-family:"JetBrains Mono";
+
+    font-size:.85rem;
+}
+
+
+
+/* =========================================
+   FORM
+========================================= */
+
+.panel label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    color:#A7B0C1;
+
+    font-size:.9rem;
+
+    font-weight:500;
+}
+
+.panel input{
+
+    width:100%;
+
+    margin-bottom:22px;
+
+    padding:16px 18px;
+
+    border-radius:14px;
+
+    background:#11161E;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:white;
+
+    font-size:15px;
+
+    transition:.25s;
+
+    outline:none;
+}
+
+.panel input::placeholder{
+
+    color:#58606E;
+}
+
+.panel input:focus{
+
+    border-color:#37F38D;
+
+    box-shadow:
+
+    0 0 0 4px rgba(55,243,141,.08);
+}
+
+
+
+/* =========================================
+   BUTTON
+========================================= */
+
+.investigateButton{
+
+    width:100%;
+
+    margin-top:18px;
+
+    padding:17px;
+
+    border:none;
+
+    border-radius:15px;
+
+    background:#37F38D;
+
+    color:#08110D;
+
+    font-weight:700;
+
+    font-size:15px;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.investigateButton:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+
+    0 15px 35px rgba(55,243,141,.25);
+}
+
+
+
+/* =========================================
+   RISK REPORT
+========================================= */
+
+.reportText{
+
+    color:#8E97A9;
+
+    line-height:1.8;
+
+    margin-bottom:40px;
+
+    font-size:1rem;
+}
+
+
+
+/* =========================================
+   BADGES
+========================================= */
+
+.riskTags{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    margin-top: auto;
+    padding-top: 180px;
+}
+
+.riskTags span{
+
+    display:flex;
+
+    align-items:center;
+
+    padding:4px 8px;
+
+    border-radius:14px;
+
+    background:#10151D;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    font-size:.7rem;
+
+    color:#D5D9E2;
+
+    transition:.25s;
+}
+
+.riskTags span:hover{
+
+    background:#141B24;
+
+    transform:translateX(5px);
+}
+
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer{
+
+    margin-top:45px;
+
+    text-align:center;
+
+    color:#6D7587;
+
+    font-size:.85rem;
+
+    font-family:"JetBrains Mono";
+
+    letter-spacing:1px;
+}
+
+.inputError {
+  color: #ff4a57;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  margin-top: -14px;
+  margin-bottom: 18px;
+}
+
+.observations {
+  margin-top: 28px;
+}
+
+.observations h4 {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: #8b929e;
+  margin-bottom: 12px;
+}
+
+.observation {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px;
+  background: #10151d;
+}
+
+.observationHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.observation p {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: #9da5b1;
+}
