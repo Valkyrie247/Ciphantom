@@ -1,115 +1,89 @@
-<<<<<<< HEAD
-Ciphantom v1.0
-
-1. Vision
-
-2. Problem Statement
-
-3. Target Users
-
-4. User Journey
-
-5. Functional Requirements
-
-6. Non-Functional Requirements
-
-7. System Architecture
-
-8. Frontend Architecture
-
-9. Backend Architecture
-
-10. AI Layer
-
-11. Risk Engine
-
-12. Tech Stack
-
-13. MVP Scope
-
-14. Future Scope
-
-15. Success Metrics
-
-
-                  CIPHANTOM
-                      │
-                React Frontend
-                      │
-               POST /investigate
-                      │
-                      ▼
-              ┌───────────────┐
-              │    Backend    │
-              └───────┬───────┘
-                      │
-             ┌────────┴─────────┐
-             ▼                  ▼
-       OSINT / Findings    Risk Engine
-             │                  │
-             │             Score + Level
-             │                  │
-             └────────┬─────────┘
-                      ▼
-             AI Interpretation
-                      │
-                      ▼
-             Structured Report
-                      │
-                      ▼
-                 Frontend UI
-=======
-# Ciphantom
+# Ciphantom version 1.0
 
 > Reveal your digital shadow before someone else does.
 
-## Overview
-
-Ciphantom is a digital-footprint awareness tool that analyzes
-publicly available information to help users understand their
-online exposure.
-
-## Problem
-
-...
+Ciphantom is an OSINT-based digital footprint awareness tool
+that demonstrates what publicly available information can reveal
+about an individual and how those fragments could be used in
+social engineering.
 
 ## Features
 
-- Input validation
+- GitHub OSINT
+- Username correlation
+- Public profile evidence
+- Exposure/risk scoring
 - Digital footprint analysis
-- Cross-platform correlation
-- Exposure risk scoring
-- AI-assisted interpretation
-- Privacy countermeasures
-
-## Architecture
-
-User
-→ Frontend
-→ Backend
-→ OSINT
-→ Risk Engine
-→ AI Interpretation
-→ Risk Report
+- Social engineering simulation
+- Defensive recommendations
 
 ## Tech Stack
 
+### Frontend
 - React
-- JavaScript
-- ...
-  
-## Current Status
+- Vite
+- CSS
 
-🚧 Active development
+### Backend
+- Node.js
+- Express
+- GitHub REST API
 
-## Future Work
+## Getting Started
 
-- ...
-- ...
-- ...
+### Prerequisites
+
+- Node.js
+- npm
+- Git
+
+### 1. Clone
+
+git clone https://github.com/Valkyrie247/Ciphantom.git
+cd Ciphantom
+
+### 2. Start the backend
+
+cd backend
+npm install
+node server.js
+
+Backend runs on:
+http://localhost:5000
+
+### 3. Start the frontend
+
+Open another terminal:
+
+cd frontend
+npm install
+npm run dev
+
+Frontend runs on:
+http://localhost:5173
+
+## How It Works
+
+User Input
+↓
+OSINT Collection
+↓
+Evidence Extraction
+↓
+Identity Correlation
+↓
+Risk Analysis
+↓
+Social Engineering Simulation
+↓
+Defensive Recommendations
 
 ## Disclaimer
 
-For personal digital-privacy awareness and defensive security
-education only.
->>>>>>> d7bd086ab9965cf8ce9409774a52607388dbd019
+Ciphantom is an educational digital-privacy awareness
+and OSINT research project.
+
+It does not send phishing emails or attempt to compromise
+accounts.
+
+All social-engineering scenarios are simulated.
