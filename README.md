@@ -1,9 +1,13 @@
 # Ciphantom version 1.0
+> Reveal your digital shadow before someone else does.
+
+
+
 
 <img width="1315" height="908" alt="Screenshot 2026-08-15 222338" src="https://github.com/user-attachments/assets/ffc264a9-d0ec-4f25-a48a-dfb858790562" />
 
 
-> Reveal your digital shadow before someone else does.
+
 
 Ciphantom is an OSINT-based digital footprint awareness tool
 that demonstrates what publicly available information can reveal
