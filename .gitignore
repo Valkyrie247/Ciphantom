@@ -1,0 +1,6 @@
+privatekey.txt
+privatekey.txt.pub
+*.pem
+*.key
+.env
+node_modules/
