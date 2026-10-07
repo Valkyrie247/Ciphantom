@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // =========================================================
 // CHALLENGE 1 INITIALIZATION (phantom01)
@@ -12,6 +11,133 @@ if (typeof window !== "undefined" && !window.__INITIAL_STATE__) {
       role: "user",
       isLoggedIn: true
     }
+  };
+}
+
+// =========================================================
+// MOCK OSINT & RISK ENGINE (FRONTEND ONLY)
+// =========================================================
+
+function mockCollectOSINT(data) {
+  const username = (data.username || "").trim().replace(/^@/, "");
+  const name = (data.name || "").trim();
+  const email = (data.email || "").trim().toLowerCase();
+
+  const evidence = [
+    {
+      type: "public_profile",
+      title: "PUBLIC GITHUB PROFILE",
+      description: "A public GitHub profile was successfully resolved.",
+      strength: "HIGH"
+    }
+  ];
+
+  if (name) {
+    evidence.push({
+      type: "display_name",
+      title: "DISPLAY NAME EXPOSED",
+      description: `Public profile exposes display name "${name}".`,
+      value: name,
+      strength: "MEDIUM"
+    });
+  }
+
+  if (email) {
+    evidence.push({
+      type: "public_email",
+      title: "PUBLIC EMAIL",
+      description: "A public email address is associated with the profile.",
+      value: email,
+      strength: "HIGH"
+    });
+  }
+
+  const identifierAnalysis = [
+    {
+      platform: "GitHub",
+      identifier: username,
+      status: "FOUND",
+      visibility: "PUBLIC",
+      confidence: "HIGH",
+      evidence,
+      reason: "Public profile resolved.",
+      url: `https://github.com/${username}`
+    }
+  ];
+
+  const osintFindings = evidence.map(item => ({
+    platform: "GitHub",
+    identifier: username,
+    category: item.type,
+    status: "FOUND",
+    visibility: "PUBLIC",
+    confidence: item.strength,
+    url: `https://github.com/${username}`,
+    finding: item.description,
+    value: item.value || null
+  }));
+
+  return { identifierAnalysis, osintFindings };
+}
+
+function mockCalculateRisk(identifierAnalysis) {
+  let score = 25;
+  const observations = [];
+
+  for (const entry of identifierAnalysis) {
+    observations.push({
+      source: entry.platform,
+      type: "account_exists",
+      title: `${entry.platform.toUpperCase()} ACCOUNT FOUND`,
+      message: `A public ${entry.platform} account was confirmed for "${entry.identifier}".`,
+      severity: "low",
+      points: 5
+    });
+
+    for (const item of entry.evidence || []) {
+      const points = item.strength === "HIGH" ? 15 : 10;
+      score += points;
+      observations.push({
+        source: entry.platform,
+        type: item.type,
+        title: item.title,
+        message: item.description,
+        severity: points >= 15 ? "medium" : "low",
+        points
+      });
+    }
+  }
+
+  score = Math.min(score, 100);
+  let level = score >= 70 ? "CRITICAL" : score >= 45 ? "HIGH" : score >= 25 ? "MEDIUM" : "LOW";
+
+  return { score, level, observations };
+}
+
+function mockGeneratePhishingSimulation(formData) {
+  const username = (formData.username || "").trim().replace(/^@/, "");
+  const email = (formData.email || "").trim();
+
+  return {
+    applicable: true,
+    threat: "ACCOUNT DEACTIVATION / REACTIVATION SCAM",
+    attackSurface: [`Your GitHub account "${username}" is publicly visible.`],
+    email: {
+      from: "GitHub Support <support@github-security.example>",
+      to: email || `${username}@example.com`,
+      subject: `Action required: Your GitHub account "${username}" has been deactivated`
+    },
+    simulation: {
+      message: `Hello ${username},\n\nWe detected that your account has been inactive. Please reactivate it below:\n\n[ REACTIVATE ACCOUNT ]`
+    },
+    whyItWorks: [
+      "The message uses the target's real username.",
+      "Urgency creates pressure to act quickly."
+    ],
+    defenses: [
+      "Do not click account-recovery links inside unexpected emails.",
+      "Open platform websites directly through your browser."
+    ]
   };
 }
 
@@ -89,7 +215,7 @@ function AdminPanel({ setPage }) {
 }
 
 // =========================
-// CASE FILE
+// CASE FILE COMPONENT
 // =========================
 
 function CaseFile({ setRisk, setPage, setTarget }) {
@@ -145,25 +271,86 @@ function CaseFile({ setRisk, setPage, setTarget }) {
 
     setLoading(true);
 
-    try {
-      const response = await fetch("http://localhost:5000/investigate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
+    // Simulate 800ms loading delay
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-      if (!response.ok) throw new Error("Backend returned an error");
+    const username = formData.username.trim().replace(/^@/, "");
 
-      const result = await response.json();
-      setTarget(formData);
-      setRisk(result);
-      setPage("report");
-    } catch (error) {
-      console.error("Investigation failed:", error);
-      setErrors({ backend: "Could not connect to Ciphantom backend." });
-    } finally {
-      setLoading(false);
+    let result;
+
+    // Phase 2 Special CTF Target Check
+    if (username.toLowerCase() === "valkyrie_247") {
+      result = {
+        score: 95,
+        level: "CRITICAL",
+        observations: [
+          {
+            source: "GitHub",
+            type: "exposed_key_artifact",
+            title: "EXPOSED SYSTEM KEY ARTIFACT DETECTED",
+            message: "Private key payload located in git repository artifact (/gitignore/privatekey). Inspect metadata headers.",
+            severity: "high",
+            points: 50
+          }
+        ],
+        osintFindings: [
+          {
+            platform: "GitHub",
+            identifier: "Valkyrie_247",
+            category: "public_profile",
+            status: "FOUND",
+            visibility: "PUBLIC",
+            confidence: "HIGH",
+            url: "https://github.com/Valkyrie_247",
+            finding: "Target profile confirmed active.",
+            value: "Valkyrie_247"
+          }
+        ],
+        identifierAnalysis: [
+          {
+            platform: "GitHub",
+            identifier: "Valkyrie_247",
+            status: "FOUND",
+            visibility: "PUBLIC",
+            confidence: "HIGH",
+            evidence: [],
+            reason: "Target handle matched CTF dossier.",
+            url: "https://github.com/Valkyrie_247"
+          }
+        ],
+        correlations: [],
+        uncertainties: [],
+        phishingSimulation: {
+          applicable: true,
+          threat: "TARGET DOSSIER UNLOCKED",
+          attackSurface: ["Target artifact located at /gitignore/privatekey"],
+          email: {
+            from: "GitHub Security <notifications@github.com>",
+            to: formData.email || "valkyrie@phantom.local",
+            subject: 'Security notification for account "Valkyrie_247"'
+          }
+        }
+      };
+    } else {
+      // Standard local OSINT simulation
+      const { osintFindings, identifierAnalysis } = mockCollectOSINT(formData);
+      const risk = mockCalculateRisk(identifierAnalysis);
+      const phishingSimulation = mockGeneratePhishingSimulation(formData);
+
+      result = {
+        ...risk,
+        osintFindings,
+        identifierAnalysis,
+        correlations: [],
+        uncertainties: [],
+        phishingSimulation
+      };
     }
+
+    setTarget(formData);
+    setRisk(result);
+    setPage("report");
+    setLoading(false);
   }
 
   return (
@@ -185,7 +372,7 @@ function CaseFile({ setRisk, setPage, setTarget }) {
       <label>Username / Handle</label>
       <input
         name="username"
-        placeholder="j.doe_"
+        placeholder="Valkyrie_247"
         value={formData.username}
         onChange={handleChange}
       />
@@ -208,8 +395,6 @@ function CaseFile({ setRisk, setPage, setTarget }) {
         value={formData.profileUrl}
         onChange={handleChange}
       />
-
-      {errors.backend && <p className="inputError">{errors.backend}</p>}
 
       <button
         className="investigateButton"
@@ -271,7 +456,7 @@ function Recommendations() {
 // RISK REPORT
 // =========================
 
-function RiskReport({ risk, setPage }) {
+function RiskReport({ risk }) {
   if (!risk) {
     return (
       <div className="panel riskPanel">
@@ -293,144 +478,4 @@ function RiskReport({ risk, setPage }) {
   }
 
   return (
-    <div className="panel riskPanel">
-      <div className="panelHeader">
-        <h3>⚠ RISK REPORT</h3>
-        <span>CASE #4769</span>
-      </div>
-
-      <div className="scoreSection">
-        <div>
-          <p>EXPOSURE SCORE</p>
-          <strong>
-            {risk.score}
-            <small>/100</small>
-          </strong>
-        </div>
-        <span className={`riskLevel ${risk.level}`}>{risk.level}</span>
-      </div>
-
-      <div className="findings">
-        <h4>KEY OBSERVATIONS</h4>
-        <div className="observationList">
-          {risk.observations?.length > 0 ? (
-            risk.observations.map((observation, index) => (
-              <Observation observation={observation} key={index} />
-            ))
-          ) : (
-            <div className="observations">
-              <div className="findingHeader">
-                <span>NO CONFIRMED EXPOSURE</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Recommendations />
-
-      {risk.phishingSimulation?.applicable && (
-        <div className="simulationPrompt">
-          <div>
-            <h4>SOCIAL ENGINEERING SIMULATION</h4>
-            <p>
-              See how the information discovered during this investigation could be combined
-              into a convincing social-engineering message.
-            </p>
-          </div>
-          <button
-            className="simulationButton"
-            onClick={() => setPage("simulation")}
-          >
-            VIEW SIMULATED ATTACK →
-          </button>
-        </div>
-      )}
-
-      {risk.uncertainties?.length > 0 && (
-        <div className="uncertaintyBox">
-          <h4>UNCERTAIN SOURCES</h4>
-          {risk.uncertainties.map((uncertainty, index) => (
-            <p key={index}>○ {uncertainty}</p>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// =========================
-// FOOTER
-// =========================
-
-function Footer() {
-  return (
-    <footer>
-      DISCLAIMER • For personal digital-privacy awareness only.
-    </footer>
-  );
-}
-
-// =========================
-// MAIN APP COMPONENT
-// =========================
-
-export default function App() {
-  const [risk, setRisk] = useState(null);
-  const [target, setTarget] = useState(null);
-  const [page, setPage] = useState("home");
-  const [userRole, setUserRole] = useState(window.__INITIAL_STATE__?.user?.role || "user");
-
-  // Sync window state on interval to catch modifications
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentRole = window.__INITIAL_STATE__?.user?.role;
-      if (currentRole && currentRole !== userRole) {
-        setUserRole(currentRole);
-        if (currentRole === "admin") {
-          setPage("admin");
-        }
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [userRole]);
-
-  // Route: Admin View
-  if (page === "admin" || userRole === "admin") {
-    return (
-      <div className="app">
-        <div className="background"></div>
-        <Navbar setPage={setPage} />
-        <AdminPanel setPage={setPage} />
-        <Footer />
-      </div>
-    );
-  }
-
-  // Route: Phishing Simulation
-  if (page === "simulation") {
-    return (
-      <div className="app">
-        <div className="background"></div>
-        <Navbar setPage={setPage} />
-        {/* SimulationPage logic */}
-        <Footer />
-      </div>
-    );
-  }
-
-  // Route: Main Home View
-  return (
-    <div className="app">
-      <div className="background"></div>
-      <Navbar setPage={setPage} />
-      <Hero />
-      <main className="dashboard">
-        <CaseFile setRisk={setRisk} setPage={setPage} setTarget={setTarget} />
-        <RiskReport risk={risk} setPage={setPage} />
-      </main>
-      <Footer />
-    </div>
-  );
-}
+    <div
