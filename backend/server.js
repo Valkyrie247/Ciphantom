@@ -3,7 +3,17 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+
+// Allow cross-origin requests from Vercel and local development
+app.use(cors({
+  origin: [
+    "https://your-app.vercel.app", // Replace with your live Vercel domain
+    "http://localhost:5173",
+    "http://localhost:3000"
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // =====================================================
