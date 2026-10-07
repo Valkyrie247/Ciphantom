@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // =====================================================
-// ROOT
+// ROOT ROUTE
 // =====================================================
 
 app.get("/", (req, res) => {
@@ -21,13 +21,10 @@ app.get("/", (req, res) => {
 // =====================================================
 
 async function checkGitHub(username, name, email) {
-
   const url = `https://github.com/${username}`;
-  const apiUrl =
-    `https://api.github.com/users/${encodeURIComponent(username)}`;
+  const apiUrl = `https://api.github.com/users/${encodeURIComponent(username)}`;
 
   try {
-
     const response = await fetch(apiUrl, {
       headers: {
         Accept: "application/vnd.github+json",
@@ -35,9 +32,7 @@ async function checkGitHub(username, name, email) {
       }
     });
 
-    // Account definitely does not exist
     if (response.status === 404) {
-
       return {
         platform: "GitHub",
         identifier: username,
@@ -50,9 +45,7 @@ async function checkGitHub(username, name, email) {
       };
     }
 
-    // Something went wrong with the API
     if (!response.ok) {
-
       return {
         platform: "GitHub",
         identifier: username,
@@ -60,321 +53,138 @@ async function checkGitHub(username, name, email) {
         visibility: "UNKNOWN",
         confidence: "LOW",
         evidence: [],
-        reason:
-          `GitHub API returned HTTP ${response.status}.`,
+        reason: `GitHub API returned HTTP ${response.status}.`,
         url
       };
     }
 
     const profile = await response.json();
-
     const evidence = [];
 
-    // -------------------------------------------------
-    // PUBLIC PROFILE
-    // -------------------------------------------------
-
     evidence.push({
-
       type: "public_profile",
-
       title: "PUBLIC GITHUB PROFILE",
-
-      description:
-        "A public GitHub profile was successfully resolved.",
-
+      description: "A public GitHub profile was successfully resolved.",
       strength: "HIGH"
-
     });
 
-    // -------------------------------------------------
-    // DISPLAY NAME
-    // -------------------------------------------------
-
     if (profile.name) {
-
       evidence.push({
-
         type: "display_name",
-
         title: "DISPLAY NAME EXPOSED",
-
-        description:
-          `GitHub publicly exposes the display name "${profile.name}".`,
-
+        description: `GitHub publicly exposes the display name "${profile.name}".`,
         value: profile.name,
-
         strength: "MEDIUM"
-
       });
 
-      // Compare supplied name with GitHub name
-
       if (name) {
-
-        const suppliedParts =
-          name
-            .toLowerCase()
-            .split(/\s+/)
-            .filter(Boolean);
-
-        const githubParts =
-          profile.name
-            .toLowerCase()
-            .split(/\s+/)
-            .filter(Boolean);
-
-        const matchingParts =
-          suppliedParts.filter(part =>
-            githubParts.includes(part)
-          );
+        const suppliedParts = name.toLowerCase().split(/\s+/).filter(Boolean);
+        const githubParts = profile.name.toLowerCase().split(/\s+/).filter(Boolean);
+        const matchingParts = suppliedParts.filter(part => githubParts.includes(part));
 
         if (matchingParts.length > 0) {
-
           evidence.push({
-
             type: "name_correlation",
-
             title: "NAME CORRELATION",
-
-            description:
-              `The GitHub display name "${profile.name}" shares ${matchingParts.length} name component(s) with the supplied name "${name}".`,
-
-            value: {
-              supplied: name,
-              observed: profile.name,
-              matchingParts
-            },
-
-            strength:
-              matchingParts.length >= 2
-                ? "HIGH"
-                : "MEDIUM"
-
+            description: `The GitHub display name "${profile.name}" shares ${matchingParts.length} name component(s) with the supplied name "${name}".`,
+            value: { supplied: name, observed: profile.name, matchingParts },
+            strength: matchingParts.length >= 2 ? "HIGH" : "MEDIUM"
           });
-
         }
       }
     }
 
-    // -------------------------------------------------
-    // PUBLIC EMAIL
-    // -------------------------------------------------
-
     if (profile.email) {
-
       evidence.push({
-
         type: "public_email",
-
         title: "PUBLIC EMAIL",
-
-        description:
-          "A public email address is associated with the GitHub profile.",
-
+        description: "A public email address is associated with the GitHub profile.",
         value: profile.email,
-
         strength: "HIGH"
-
       });
 
-      // Compare supplied email with GitHub email
-
-      if (
-        email &&
-        profile.email.toLowerCase() === email.toLowerCase()
-      ) {
-
+      if (email && profile.email.toLowerCase() === email.toLowerCase()) {
         evidence.push({
-
           type: "email_correlation",
-
           title: "EMAIL CORRELATION",
-
-          description:
-            "The publicly exposed GitHub email matches the supplied email.",
-
+          description: "The publicly exposed GitHub email matches the supplied email.",
           value: profile.email,
-
           strength: "HIGH"
-
         });
-
       }
     }
 
-    // -------------------------------------------------
-    // BIO
-    // -------------------------------------------------
-
     if (profile.bio) {
-
       evidence.push({
-
         type: "bio",
-
         title: "PUBLIC BIO",
-
-        description:
-          "The GitHub profile exposes a public biography.",
-
+        description: "The GitHub profile exposes a public biography.",
         value: profile.bio,
-
         strength: "MEDIUM"
-
       });
-
     }
-
-    // -------------------------------------------------
-    // LOCATION
-    // -------------------------------------------------
 
     if (profile.location) {
-
       evidence.push({
-
         type: "location",
-
         title: "LOCATION EXPOSED",
-
-        description:
-          `GitHub publicly exposes the location "${profile.location}".`,
-
+        description: `GitHub publicly exposes the location "${profile.location}".`,
         value: profile.location,
-
         strength: "MEDIUM"
-
       });
-
     }
-
-    // -------------------------------------------------
-    // WEBSITE
-    // -------------------------------------------------
 
     if (profile.blog) {
-
       evidence.push({
-
         type: "external_website",
-
         title: "EXTERNAL WEBSITE",
-
-        description:
-          "The GitHub profile contains a publicly visible external website.",
-
+        description: "The GitHub profile contains a publicly visible external website.",
         value: profile.blog,
-
         strength: "MEDIUM"
-
       });
-
     }
 
-    // -------------------------------------------------
-    // PUBLIC REPOSITORIES
-    // -------------------------------------------------
-
-    if (
-      typeof profile.public_repos === "number" &&
-      profile.public_repos > 0
-    ) {
-
+    if (typeof profile.public_repos === "number" && profile.public_repos > 0) {
       evidence.push({
-
         type: "public_repositories",
-
         title: "PUBLIC REPOSITORIES",
-
-        description:
-          `The account exposes ${profile.public_repos} public ${
-            profile.public_repos === 1
-              ? "repository"
-              : "repositories"
-          }.`,
-
+        description: `The account exposes ${profile.public_repos} public ${profile.public_repos === 1 ? "repository" : "repositories"}.`,
         value: profile.public_repos,
-
         strength: "MEDIUM"
-
       });
-
     }
 
-    // -------------------------------------------------
-    // FOLLOWERS
-    // -------------------------------------------------
-
-    if (
-      typeof profile.followers === "number" &&
-      profile.followers > 0
-    ) {
-
+    if (typeof profile.followers === "number" && profile.followers > 0) {
       evidence.push({
-
         type: "followers",
-
         title: "PUBLIC FOLLOWER COUNT",
-
-        description:
-          `The GitHub account publicly exposes ${profile.followers} follower(s).`,
-
+        description: `The GitHub account publicly exposes ${profile.followers} follower(s).`,
         value: profile.followers,
-
         strength: "LOW"
-
       });
-
     }
 
-    // -------------------------------------------------
-    // FINAL GITHUB RESULT
-    // -------------------------------------------------
-
     return {
-
       platform: "GitHub",
-
       identifier: username,
-
       status: "FOUND",
-
       visibility: "PUBLIC",
-
       confidence: "HIGH",
-
       evidence,
-
-      reason:
-        "GitHub public API successfully resolved the account.",
-
+      reason: "GitHub public API successfully resolved the account.",
       url
-
     };
-
   } catch (error) {
-
     return {
-
       platform: "GitHub",
-
       identifier: username,
-
       status: "UNVERIFIED",
-
       visibility: "UNKNOWN",
-
       confidence: "LOW",
-
       evidence: [],
-
       reason: "GitHub request failed.",
-
       url
-
     };
-
   }
 }
 
@@ -383,97 +193,51 @@ async function checkGitHub(username, name, email) {
 // =====================================================
 
 async function checkInstagram(username) {
-
-  const url =
-    `https://www.instagram.com/${encodeURIComponent(username)}/`;
+  const url = `https://www.instagram.com/${encodeURIComponent(username)}/`;
 
   try {
-
     const response = await fetch(url, {
-
       method: "HEAD",
-
       redirect: "follow",
-
       headers: {
         "User-Agent": "Mozilla/5.0"
       }
-
     });
 
-    // Instagram 404 can indicate that the
-    // requested page does not exist.
-
     if (response.status === 404) {
-
       return {
-
         platform: "Instagram",
-
         identifier: username,
-
         status: "NOT_FOUND",
-
         visibility: "UNKNOWN",
-
         confidence: "MEDIUM",
-
         evidence: [],
-
         reason: "Instagram returned HTTP 404.",
-
         url
-
       };
-
     }
 
-    // We deliberately do NOT pretend that HTTP 200
-    // proves the account exists.
-
     return {
-
       platform: "Instagram",
-
       identifier: username,
-
       status: "UNVERIFIED",
-
       visibility: "UNKNOWN",
-
       confidence: "LOW",
-
       evidence: [],
-
-      reason:
-        "Instagram does not reliably expose account existence through unauthenticated HTTP requests.",
-
+      reason: "Instagram does not reliably expose account existence through unauthenticated HTTP requests.",
       url
-
     };
-
   } catch (error) {
-
     return {
-
       platform: "Instagram",
-
       identifier: username,
-
       status: "UNVERIFIED",
-
       visibility: "UNKNOWN",
-
       confidence: "LOW",
-
       evidence: [],
-
       reason: "Instagram request failed.",
-
       url
-
     };
-
   }
 }
 
@@ -482,96 +246,49 @@ async function checkInstagram(username) {
 // =====================================================
 
 async function collectOSINT(data) {
-
-  const name =
-    data.name?.trim() || "";
-
-  const username =
-    data.username
-      ?.trim()
-      .replace(/^@/, "") || "";
-
-  const email =
-    data.email
-      ?.trim()
-      .toLowerCase() || "";
-
-  // Username is required for this version
+  const name = data.name?.trim() || "";
+  const username = data.username?.trim().replace(/^@/, "") || "";
+  const email = data.email?.trim().toLowerCase() || "";
 
   if (!username) {
-
     return {
-
       identifierAnalysis: [],
-
       osintFindings: []
-
     };
-
   }
 
-  // Run both checks
-
   const results = await Promise.all([
-
-    checkGitHub(
-      username,
-      name,
-      email
-    ),
-
+    checkGitHub(username, name, email),
     checkInstagram(username)
-
   ]);
 
-  const identifierAnalysis =
-    results;
-
+  const identifierAnalysis = results;
   const osintFindings = [];
 
-  // Convert evidence into findings
-
   for (const result of results) {
-
     if (result.status !== "FOUND") {
       continue;
     }
 
     for (const evidence of result.evidence) {
-
       osintFindings.push({
-
         platform: result.platform,
-
         identifier: result.identifier,
-
         category: evidence.type,
-
         status: "FOUND",
-
         visibility: result.visibility,
-
         confidence: evidence.strength,
-
         url: result.url,
-
         finding: evidence.description,
-
         value: evidence.value ?? null
-
       });
-
     }
   }
 
   return {
-
     identifierAnalysis,
-
     osintFindings
-
   };
-
 }
 
 // =====================================================
@@ -579,242 +296,117 @@ async function collectOSINT(data) {
 // =====================================================
 
 function correlateIdentities(identifierAnalysis) {
-
-  const found =
-    identifierAnalysis.filter(
-      entry => entry.status === "FOUND"
-    );
-
+  const found = identifierAnalysis.filter(entry => entry.status === "FOUND");
   const correlations = [];
 
-  // Compare confirmed accounts
-
   for (let i = 0; i < found.length; i++) {
-
     for (let j = i + 1; j < found.length; j++) {
-
       const accountA = found[i];
       const accountB = found[j];
 
-      // Same username on two confirmed platforms
-
-      if (
-        accountA.identifier.toLowerCase() ===
-        accountB.identifier.toLowerCase()
-      ) {
-
+      if (accountA.identifier.toLowerCase() === accountB.identifier.toLowerCase()) {
         correlations.push({
-
           type: "username_reuse",
-
           accounts: [
-
-            {
-              platform: accountA.platform,
-              identifier: accountA.identifier,
-              url: accountA.url
-            },
-
-            {
-              platform: accountB.platform,
-              identifier: accountB.identifier,
-              url: accountB.url
-            }
-
+            { platform: accountA.platform, identifier: accountA.identifier, url: accountA.url },
+            { platform: accountB.platform, identifier: accountB.identifier, url: accountB.url }
           ],
-
           confidence: "MEDIUM",
-
-          explanation:
-            `The same identifier "${accountA.identifier}" was confirmed on ${accountA.platform} and ${accountB.platform}.`,
-
+          explanation: `The same identifier "${accountA.identifier}" was confirmed on ${accountA.platform} and ${accountB.platform}.`,
           evidence: [
-
-            {
-
-              type: "identical_username",
-
-              value: accountA.identifier,
-
-              strength: "MEDIUM"
-
-            }
-
+            { type: "identical_username", value: accountA.identifier, strength: "MEDIUM" }
           ]
-
         });
-
       }
-
     }
-
   }
 
   return correlations;
-
 }
 
 // =====================================================
 // RISK CALCULATION
 // =====================================================
 
-function calculateRisk(
-  identifierAnalysis,
-  correlations
-) {
-
+function calculateRisk(identifierAnalysis, correlations) {
   let score = 0;
-
   const observations = [];
 
-  // ---------------------------------------------------
-  // ACCOUNT + EVIDENCE
-  // ---------------------------------------------------
-
   for (const entry of identifierAnalysis) {
-
     if (entry.status !== "FOUND") {
       continue;
     }
 
-    // Account itself exists
-
     score += 5;
-
     observations.push({
-
       source: entry.platform,
-
       type: "account_exists",
-
-      title:
-        `${entry.platform.toUpperCase()} ACCOUNT FOUND`,
-
-      message:
-        `A public ${entry.platform} account was confirmed for "${entry.identifier}".`,
-
+      title: `${entry.platform.toUpperCase()} ACCOUNT FOUND`,
+      message: `A public ${entry.platform} account was confirmed for "${entry.identifier}".`,
       severity: "low",
-
       points: 5
-
     });
 
-    // Actual evidence
-
     for (const evidence of entry.evidence || []) {
-
       let points = 0;
-
       let severity = "low";
 
       if (evidence.strength === "HIGH") {
-
         points = 10;
         severity = "medium";
-
-      } else if (
-        evidence.strength === "MEDIUM"
-      ) {
-
+      } else if (evidence.strength === "MEDIUM") {
         points = 5;
-
       }
 
       score += points;
-
       observations.push({
-
         source: entry.platform,
-
         type: evidence.type,
-
         title: evidence.title,
-
         message: evidence.description,
-
         severity,
-
         points
-
       });
-
     }
-
   }
 
-  // ---------------------------------------------------
-  // CORRELATIONS
-  // ---------------------------------------------------
-
   for (const correlation of correlations) {
-
     const points =
       correlation.confidence === "HIGH"
         ? 15
         : correlation.confidence === "MEDIUM"
-          ? 10
-          : 5;
+        ? 10
+        : 5;
 
     score += points;
-
     observations.push({
-
       source: "correlation",
-
       type: correlation.type,
-
       title: "IDENTITY CORRELATION",
-
       message: correlation.explanation,
-
-      severity:
-        points >= 15
-          ? "high"
-          : "medium",
-
+      severity: points >= 15 ? "high" : "medium",
       points
-
     });
-
   }
 
-  score =
-    Math.min(score, 100);
-
-  // ---------------------------------------------------
-  // RISK LEVEL
-  // ---------------------------------------------------
+  score = Math.min(score, 100);
 
   let level;
-
   if (score >= 70) {
-
     level = "CRITICAL";
-
   } else if (score >= 45) {
-
     level = "HIGH";
-
   } else if (score >= 25) {
-
     level = "MEDIUM";
-
   } else {
-
     level = "LOW";
-
   }
 
   return {
-
     score,
-
     level,
-
     observations
-
   };
-
 }
 
 // =====================================================
@@ -822,7 +414,6 @@ function calculateRisk(
 // =====================================================
 
 function generatePhishingSimulation(formData, observations, osintFindings) {
-
   const username = (formData.username || "").trim();
   const name = (formData.name || "").trim();
   const email = (formData.email || "").trim();
@@ -840,34 +431,23 @@ function generatePhishingSimulation(formData, observations, osintFindings) {
   }
 
   const github = osintFindings.find(
-    item => item.platform === "GitHub" &&
-           item.category === "public_profile"
+    item => item.platform === "GitHub" && item.category === "public_profile"
   );
-
   const displayName = osintFindings.find(
-    item => item.platform === "GitHub" &&
-           item.category === "display_name"
+    item => item.platform === "GitHub" && item.category === "display_name"
   );
-
   const repositories = osintFindings.find(
-    item => item.platform === "GitHub" &&
-           item.category === "public_repositories"
+    item => item.platform === "GitHub" && item.category === "public_repositories"
   );
 
   const foundInformation = [];
 
   if (github) {
-    foundInformation.push(
-      `Your GitHub account "${username}" is publicly visible.`
-    );
+    foundInformation.push(`Your GitHub account "${username}" is publicly visible.`);
   }
-
   if (displayName) {
-    foundInformation.push(
-      `Your public profile displays the name "${displayName.value}".`
-    );
+    foundInformation.push(`Your public profile displays the name "${displayName.value}".`);
   }
-
   if (repositories) {
     foundInformation.push(
       `Your profile currently exposes ${repositories.value} public ${
@@ -878,17 +458,13 @@ function generatePhishingSimulation(formData, observations, osintFindings) {
 
   return {
     applicable: foundInformation.length > 0,
-
     threat: "ACCOUNT DEACTIVATION / REACTIVATION SCAM",
-
     attackSurface: foundInformation,
-
     email: {
       from: "GitHub Support <support@github-security.example>",
       to: email,
       subject: `Action required: Your GitHub account "${username}" has been deactivated`
     },
-
     simulation: {
       message: `
 Hello ${username},
@@ -911,7 +487,6 @@ If you do not complete the verification process, access to your account may be r
 GitHub Account Security Team
       `.trim()
     },
-
     whyItWorks: [
       "The message uses the target's real username.",
       displayName
@@ -920,7 +495,6 @@ GitHub Account Security Team
       "A familiar platform makes the message appear more believable.",
       "The urgency creates pressure to click before checking whether the message is legitimate."
     ],
-
     defenses: [
       "Do not click account-recovery links inside unexpected emails.",
       "Open GitHub directly through your browser instead of using the email link.",
@@ -932,26 +506,80 @@ GitHub Account Security Team
 }
 
 // =====================================================
-// INVESTIGATION
-// =====================================================
-// =====================================================
-// INVESTIGATION
+// INVESTIGATION ROUTE
 // =====================================================
 
 app.post("/investigate", async (req, res) => {
-
   console.log("\n========== INVESTIGATION START ==========");
   console.log("Request received:", req.body);
 
   try {
-
     const data = req.body;
+    const username = (data.username || "").trim().replace(/^@/, "");
 
-    // 1. COLLECT OSINT
-    const {
-      osintFindings,
-      identifierAnalysis
-    } = await collectOSINT(data);
+    // -------------------------------------------------
+    // 1. CTF TARGET CHECK (Valkyrie_247)
+    // -------------------------------------------------
+    if (username.toLowerCase() === "valkyrie_247") {
+      console.log("Target handle matched: Valkyrie_247");
+      return res.json({
+        score: 95,
+        level: "CRITICAL",
+        observations: [
+          {
+            source: "GitHub",
+            type: "exposed_key_artifact",
+            title: "EXPOSED SYSTEM KEY ARTIFACT DETECTED",
+            message:
+              "Private key payload located in git repository artifact (/gitignore/privatekey). Inspect metadata headers.",
+            severity: "high",
+            points: 50
+          }
+        ],
+        osintFindings: [
+          {
+            platform: "GitHub",
+            identifier: "Valkyrie_247",
+            category: "public_profile",
+            status: "FOUND",
+            visibility: "PUBLIC",
+            confidence: "HIGH",
+            url: "https://github.com/Valkyrie_247",
+            finding: "Target profile confirmed active.",
+            value: "Valkyrie_247"
+          }
+        ],
+        identifierAnalysis: [
+          {
+            platform: "GitHub",
+            identifier: "Valkyrie_247",
+            status: "FOUND",
+            visibility: "PUBLIC",
+            confidence: "HIGH",
+            evidence: [],
+            reason: "Target handle matched CTF dossier.",
+            url: "https://github.com/Valkyrie_247"
+          }
+        ],
+        correlations: [],
+        uncertainties: [],
+        phishingSimulation: {
+          applicable: true,
+          threat: "TARGET DOSSIER UNLOCKED",
+          attackSurface: ["Target artifact located at /gitignore/privatekey"],
+          email: {
+            from: "GitHub Security <notifications@github.com>",
+            to: data.email || "valkyrie@phantom.local",
+            subject: 'Security notification for account "Valkyrie_247"'
+          }
+        }
+      });
+    }
+
+    // -------------------------------------------------
+    // 2. STANDARD OSINT COLLECTION & RISK PIPELINE
+    // -------------------------------------------------
+    const { osintFindings, identifierAnalysis } = await collectOSINT(data);
 
     console.log("Identifier analysis:");
     console.dir(identifierAnalysis, { depth: null });
@@ -959,107 +587,59 @@ app.post("/investigate", async (req, res) => {
     console.log("OSINT findings:");
     console.dir(osintFindings, { depth: null });
 
-
-    // 2. CORRELATE IDENTITIES
-
-    const correlations =
-      correlateIdentities(identifierAnalysis);
+    const correlations = correlateIdentities(identifierAnalysis);
 
     console.log("Correlations:");
     console.dir(correlations, { depth: null });
 
-
-    // 3. CALCULATE RISK
-
-    const risk =
-      calculateRisk(
-        identifierAnalysis,
-        correlations
-      );
+    const risk = calculateRisk(identifierAnalysis, correlations);
 
     console.log("Risk:");
     console.dir(risk, { depth: null });
 
+    const uncertainties = identifierAnalysis
+      .filter(entry => entry.status === "UNVERIFIED")
+      .map(
+        entry =>
+          `${entry.platform} check for "${entry.identifier}" could not be independently confirmed.`
+      );
 
-    // 4. UNCERTAINTIES
-
-    const uncertainties =
-      identifierAnalysis
-        .filter(
-          entry => entry.status === "UNVERIFIED"
-        )
-        .map(
-          entry =>
-            `${entry.platform} check for "${entry.identifier}" could not be independently confirmed.`
-        );
-
-
-    // 5. SOCIAL ENGINEERING SIMULATION
-
-    const phishingSimulation =
-  generatePhishingSimulation(
-    data,
-    risk.observations,
-    osintFindings
-  );
-
-
-    // 6. FINAL RESULT
+    const phishingSimulation = generatePhishingSimulation(
+      data,
+      risk.observations,
+      osintFindings
+    );
 
     const result = {
-
       ...risk,
-
       osintFindings,
-
       identifierAnalysis,
-
       correlations,
-
       uncertainties,
-
       phishingSimulation
-
     };
-
 
     console.log("Final result:");
     console.dir(result, { depth: null });
+    console.log("========== INVESTIGATION END ==========\n");
 
-    console.log(
-      "========== INVESTIGATION END ==========\n"
-    );
-
-
-    res.json(result);
-
+    return res.json(result);
   } catch (error) {
+    console.error("INVESTIGATION ERROR:", error);
 
-    console.error(
-      "INVESTIGATION ERROR:",
-      error
-    );
-
-    res.status(500).json({
-
+    return res.status(500).json({
       error: "Investigation failed",
-
       message: error.message
-
     });
-
   }
-
 });
 
 // =====================================================
 // START SERVER
 // =====================================================
 
-app.listen(5000, () => {
+const PORT = process.env.PORT || 5000;
 
-  console.log(
-    "Ciphantom backend running on port 5000"
-  );
-
+app.listen(PORT, () => {
+  console.log(`Ciphantom backend running on port ${PORT}`);
 });
