@@ -188,7 +188,7 @@ function Hero() {
 // ADMIN PANEL (CHALLENGE 1 TARGET)
 // =========================
 
-function AdminPanel({ setPage }) {
+ function AdminPanel({ setPage }) {
   return (
     <div className="simulationPage">
       <button className="backButton" onClick={() => setPage("home")}>
@@ -197,7 +197,7 @@ function AdminPanel({ setPage }) {
 
       <div className="simulationTitle">
         <p>RESTRICTED ACCESS · SYSTEM LOGS</p>
-        <h1>Welcome <Admin></Admin></h1>
+        <h1>Welcome Admin</h1>
         <div className="simulationWarning">⚠ ELEVATED PRIVILEGES DETECTED</div>
       </div>
 
@@ -213,7 +213,6 @@ function AdminPanel({ setPage }) {
     </div>
   );
 }
-
 // =========================
 // CASE FILE COMPONENT
 // =========================
