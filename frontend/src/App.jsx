@@ -15,7 +15,7 @@ if (typeof window !== "undefined" && !window.__INITIAL_STATE__) {
 }
 
 // =========================================================
-// MOCK OSINT & RISK ENGINE (FRONTEND ONLY)
+// MOCK OSINT & RISK ENGINE (FRONTEND ONLY - NO BACKEND)
 // =========================================================
 
 function mockCollectOSINT(data) {
@@ -271,14 +271,14 @@ function CaseFile({ setRisk, setPage, setTarget }) {
 
     setLoading(true);
 
-    // Simulate 800ms loading delay
+    // Simulate 800ms loading delay without making external network calls
     await new Promise(resolve => setTimeout(resolve, 800));
 
     const username = formData.username.trim().replace(/^@/, "");
 
     let result;
 
-    // Phase 2 Special CTF Target Check
+    // Phase 2 Special CTF Target Check (Pure Client-Side)
     if (username.toLowerCase() === "valkyrie_247") {
       result = {
         score: 95,
