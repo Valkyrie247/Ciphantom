@@ -197,7 +197,7 @@ function AdminPanel({ setPage }) {
 
       <div className="simulationTitle">
         <p>RESTRICTED ACCESS · SYSTEM LOGS</p>
-        <h1>Welcome Valkyrie_247</h1>
+        <h1>Welcome <Admin></Admin></h1>
         <div className="simulationWarning">⚠ ELEVATED PRIVILEGES DETECTED</div>
       </div>
 
@@ -207,7 +207,7 @@ function AdminPanel({ setPage }) {
           Target public repository acquired:
         </p>
         <code style={{ display: "block", margin: "15px 0", padding: "10px", background: "#111", color: "#00ff66" }}>
-          $~WelcL0mE V@lkyrie_247
+          $~ 9hant0m is V@lkyrie247
         </code>
       </div>
     </div>
@@ -283,16 +283,16 @@ function CaseFile({ setRisk, setPage, setTarget }) {
       result = {
         score: 95,
         level: "CRITICAL",
-        observations: [
-          {
-            source: "GitHub",
-            type: "exposed_key_artifact",
-            title: "EXPOSED SYSTEM KEY ARTIFACT DETECTED",
-            message: "Private key payload located in git repository artifact (/gitignore/privatekey). Inspect metadata headers.",
-            severity: "high",
-            points: 50
-          }
-        ],
+          observations: [
+      {
+        source: "GitHub",
+        type: "exposed_key_artifact",
+        title: "EXPOSED SYSTEM KEY ARTIFACT DETECTED",
+        message: "Seek the key where files are born to be forgotten. / keeps the threshold, but ignore guards the vault. The truth is not in the payload you read—it is written in the shadow headers of its transport.",
+        severity: "high",
+        points: 50
+      }
+    ],
         osintFindings: [
           {
             platform: "GitHub",
@@ -372,7 +372,7 @@ function CaseFile({ setRisk, setPage, setTarget }) {
       <label>Username / Handle</label>
       <input
         name="username"
-        placeholder="Valkyrie_247"
+        placeholder="janedoe01"
         value={formData.username}
         onChange={handleChange}
       />
@@ -413,15 +413,19 @@ function CaseFile({ setRisk, setPage, setTarget }) {
 
 function Observation({ observation }) {
   return (
-    <div className="observations">
-      <div className="findingHeader">
-        <span>{observation.title}</span>
+    <div className="observations" style={{ padding: "12px", background: "#161b22", marginBottom: "8px", borderRadius: "6px" }}>
+      <div className="findingHeader" style={{ display: "flex", justifyContent: "space-between" }}>
+        <strong style={{ color: "#ff4d4d" }}>{observation.title}</strong>
         {observation.points !== undefined && <small>+{observation.points}</small>}
       </div>
+      {observation.message && (
+        <p style={{ marginTop: "6px", fontSize: "0.85rem", color: "#aaa" }}>
+          {observation.message}
+        </p>
+      )}
     </div>
   );
 }
-
 // =========================
 // RECOMMENDATIONS
 // =========================
