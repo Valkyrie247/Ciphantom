@@ -279,7 +279,7 @@ function CaseFile({ setRisk, setPage, setTarget }) {
     let result;
 
     // Phase 2 Special CTF Target Check (Pure Client-Side)
-    if (username.toLowerCase() === "valkyrie_247") {
+    if (username.toLowerCase() === "valkyrie247") {
       result = {
         score: 95,
         level: "CRITICAL",
@@ -296,12 +296,12 @@ function CaseFile({ setRisk, setPage, setTarget }) {
         osintFindings: [
           {
             platform: "GitHub",
-            identifier: "Valkyrie_247",
+            identifier: "Valkyrie247",
             category: "public_profile",
             status: "FOUND",
             visibility: "PUBLIC",
             confidence: "HIGH",
-            url: "https://github.com/Valkyrie_247",
+            url: "https://github.com/Valkyrie247",
             finding: "Target profile confirmed active.",
             value: "Valkyrie_247"
           }
@@ -309,13 +309,13 @@ function CaseFile({ setRisk, setPage, setTarget }) {
         identifierAnalysis: [
           {
             platform: "GitHub",
-            identifier: "Valkyrie_247",
+            identifier: "Valkyrie247",
             status: "FOUND",
             visibility: "PUBLIC",
             confidence: "HIGH",
             evidence: [],
             reason: "Target handle matched CTF dossier.",
-            url: "https://github.com/Valkyrie_247"
+            url: "https://github.com/Valkyrie247"
           }
         ],
         correlations: [],
@@ -327,7 +327,7 @@ function CaseFile({ setRisk, setPage, setTarget }) {
           email: {
             from: "GitHub Security <notifications@github.com>",
             to: formData.email || "valkyrie@phantom.local",
-            subject: 'Security notification for account "Valkyrie_247"'
+            subject: 'Security notification for account "Valkyrie247"'
           }
         }
       };
