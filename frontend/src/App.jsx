@@ -478,4 +478,114 @@ function RiskReport({ risk }) {
   }
 
   return (
-    <div
+    <div className="panel riskPanel">
+      <div className="panelHeader">
+        <h3>⚠ RISK REPORT</h3>
+        <span>CASE #4769</span>
+      </div>
+
+      <div className="scoreSection">
+        <div>
+          <p>EXPOSURE SCORE</p>
+          <strong>
+            {risk.score}
+            <small>/100</small>
+          </strong>
+        </div>
+        <span className={`riskLevel ${risk.level}`}>{risk.level}</span>
+      </div>
+
+      <div className="findings">
+        <h4>KEY OBSERVATIONS</h4>
+        <div className="observationList">
+          {risk.observations?.length > 0 ? (
+            risk.observations.map((observation, index) => (
+              <Observation observation={observation} key={index} />
+            ))
+          ) : (
+            <div className="observations">
+              <div className="findingHeader">
+                <span>NO CONFIRMED EXPOSURE</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Recommendations />
+
+      {risk.uncertainties?.length > 0 && (
+        <div className="uncertaintyBox">
+          <h4>UNCERTAIN SOURCES</h4>
+          {risk.uncertainties.map((uncertainty, index) => (
+            <p key={index}>○ {uncertainty}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================
+// FOOTER
+// =========================
+
+function Footer() {
+  return (
+    <footer>
+      DISCLAIMER • For personal digital-privacy awareness only.
+    </footer>
+  );
+}
+
+// =========================
+// MAIN APP COMPONENT
+// =========================
+
+export default function App() {
+  const [risk, setRisk] = useState(null);
+  const [target, setTarget] = useState(null);
+  const [page, setPage] = useState("home");
+  const [userRole, setUserRole] = useState(window.__INITIAL_STATE__?.user?.role || "user");
+
+  // Sync window state on interval to catch modifications (Phase 1 CTF)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentRole = window.__INITIAL_STATE__?.user?.role;
+      if (currentRole && currentRole !== userRole) {
+        setUserRole(currentRole);
+        if (currentRole === "admin") {
+          setPage("admin");
+        }
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [userRole]);
+
+  // Route: Admin View
+  if (page === "admin" || userRole === "admin") {
+    return (
+      <div className="app">
+        <div className="background"></div>
+        <Navbar setPage={setPage} />
+        <AdminPanel setPage={setPage} />
+        <Footer />
+      </div>
+    );
+  }
+
+  // Route: Main Home View
+  return (
+    <div className="app">
+      <div className="background"></div>
+      <Navbar setPage={setPage} />
+      <Hero />
+      <main className="dashboard">
+        <CaseFile setRisk={setRisk} setPage={setPage} setTarget={setTarget} />
+        <RiskReport risk={risk} />
+      </main>
+      <Footer />
+    </div>
+  );
+}
