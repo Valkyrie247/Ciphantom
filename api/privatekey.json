@@ -1,0 +1,16 @@
+// api/privatekey.js
+export default function handler(req, res) {
+  // Pull secret dynamically from Vercel Environment Variables
+  const secretKey = process.env.SYSTEM_KEY || 'Layer8{ph4nt0m_m3t4d4t4_3xp0s3d}';
+
+  // Expose the secret in the response header (as required by the riddle)
+  res.setHeader('X-System-Key', secretKey);
+  res.setHeader('Cache-Control', 'no-store');
+
+  // Return a clean JSON response
+  return res.status(200).json({
+    status: "EXPOSED_ARTIFACT",
+    target: "Valkyrie_247",
+    message: "Shadow header transport verification successful."
+  });
+}
